@@ -7,26 +7,34 @@ import Teams from './pages/Teams'
 import Reports from './pages/Reports'
 import Analytics from './pages/Analytics'
 import Settings from './pages/Settings'
+import Register from './pages/Register'
+import Login from './pages/Login'
 
 export default function App() {
   return (
     <Router>
-      <div className="flex h-screen bg-slate-900">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <Navbar />
-          <main className="flex-1 overflow-y-auto p-6">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/teams" element={<Teams />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
-          </main>
-        </div>
-      </div>
+      <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/*" element={
+          <div className="flex h-screen bg-slate-900">
+            <Sidebar />
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <Navbar />
+              <main className="flex-1 overflow-y-auto p-6">
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/projects" element={<Projects />} />
+                  <Route path="/teams" element={<Teams />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Routes>
+              </main>
+            </div>
+          </div>
+        } />
+      </Routes>
     </Router>
   )
 }
