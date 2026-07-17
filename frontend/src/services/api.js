@@ -42,6 +42,7 @@ export const aiAPI = {
   chat: (message, projectId) => api.post('/ai/chat', { message, project_id: projectId }),
   getSuggestions: (projectId) => api.get(`/ai/suggestions/${projectId}`),
   predict: (projectId) => api.get(`/ai/predict/${projectId}`),
+  getOrchestrationStatus: () => api.get('/ai/orchestration/status'),
 }
 
 export default api

@@ -1,36 +1,63 @@
+import { Activity, TrendingUp, TrendingDown } from 'lucide-react'
+
 export default function ProjectCard({ project }) {
-  const statusColors = {
-    active: 'bg-green-500',
-    warning: 'bg-yellow-500',
-    critical: 'bg-red-500',
-    completed: 'bg-blue-500',
+  const statusConfig = {
+    active: { color: 'bg-green-500', glow: 'shadow-green-500/20', text: 'text-green-400', label: 'Healthy' },
+    warning: { color: 'bg-yellow-500', glow: 'shadow-yellow-500/20', text: 'text-yellow-400', label: 'Warning' },
+    critical: { color: 'bg-red-500', glow: 'shadow-red-500/20', text: 'text-red-400', label: 'Critical' },
+    completed: { color: 'bg-blue-500', glow: 'shadow-blue-500/20', text: 'text-blue-400', label: 'Complete' },
   }
 
+  const config = statusConfig[project.status] || statusConfig.active
+  const isHealthy = project.health_score >= 70
+
   return (
-    <div className="bg-slate-800 rounded-lg p-5 border border-slate-700 hover:border-slate-600 transition">
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="text-lg font-semibold text-white">{project.name}</h3>
-        <span className={`px-2 py-1 rounded text-xs font-medium text-white ${statusColors[project.status] || 'bg-gray-500'}`}>
-          {project.status}
-        </span>
-      </div>
-      <div className="space-y-3">
+    <div className={`bg-slate-800 rounded-xl p-5 border border-slate-700 hover:border-slate-500 transition-all duration-200 hover:shadow-lg ${config.glow}`}>
+      <div className="flex justify-between items-start mb-4">
         <div>
-          <div className="flex justify-between text-sm text-slate-400 mb-1">
-            <span>Completion</span>
-            <span>{project.completion}%</span>
-          </div>
-          <div className="w-full bg-slate-700 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full ${project.completion >= 80 ? 'bg-green-500' : project.completion >= 50 ? 'bg-yellow-500' : 'bg-red-500'}`}
-              style={{ width: `${project.completion}%` }}
-            />
-          </div>
+          <h3 className="text-lg font-semibold text-white">{project.name}</h3>
+          {project.description && (
+            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{project.description}</p>
+          )}
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-slate-400">Health</span>
-          <span className={`font-medium ${project.health_score >= 80 ? 'text-green-400' : project.health_score >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>
-            {project.health_score}%
+        <div className="flex items-center gap-1.5">
+          <span className={`w-2 h-2 rounded-full ${config.color} ${project.status === 'critical' ? 'animate-pulse' : ''}`} />
+          <span className={`text-xs font-medium ${config.text}`}>{config.label}</span>
+        </div>
+      </div>
+
+      {/* Completion bar */}
+      <div className="mb-3">
+        <div className="flex justify-between text-sm text-slate-400 mb-1.5">
+          <span>Completion</span>
+          <span className="font-medium text-white">{project.completion}%</span>
+        </div>
+        <div className="w-full bg-slate-700 rounded-full h-2.5 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-1000 ease-out ${
+              project.completion >= 80 ? 'bg-gradient-to-r from-green-500 to-emerald-400'
+              : project.completion >= 50 ? 'bg-gradient-to-r from-yellow-500 to-amber-400'
+              : 'bg-gradient-to-r from-red-500 to-rose-400'
+            }`}
+            style={{ width: `${project.completion}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Health & Trend */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Activity size={14} className={config.text} />
+          <span className={`text-sm font-medium ${config.text}`}>{project.health_score}% health</span>
+        </div>
+        <div className="flex items-center gap-1">
+          {isHealthy ? (
+            <TrendingUp size={14} className="text-green-400" />
+          ) : (
+            <TrendingDown size={14} className="text-red-400" />
+          )}
+          <span className={`text-xs ${isHealthy ? 'text-green-400' : 'text-red-400'}`}>
+            {isHealthy ? 'On track' : 'At risk'}
           </span>
         </div>
       </div>
