@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: projectpulse-api
+    env: python
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: projectpulse-db
+          property: connectionString
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+
+  - type: web
+    name: projectpulse-frontend
+    env: node
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm run preview
+    envVars:
+      - key: VITE_API_URL
+        value: https://projectpulse-api.onrender.com
+
+databases:
+  - name: projectpulse-db
+    plan: free

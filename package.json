@@ -1,0 +1,12 @@
+{
+  "name": "projectpulse-ai",
+  "version": "1.0.0",
+  "description": "AI-powered project management platform",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && uvicorn app.main:app --reload",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:frontend": "cd frontend && npm install",
+    "build:frontend": "cd frontend && npm run build"
+  }
+}
