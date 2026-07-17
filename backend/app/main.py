@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import json
 
-from app.api import projects, teams, standups, reports, alerts, ai
+from app.api import projects, teams, standups, reports, alerts, ai, planning
 from app.api import auth
 from app.database.database import engine, Base
 from app.database.seed import seed_database
@@ -29,6 +29,7 @@ app.include_router(standups.router, prefix="/api/standups", tags=["Standups"])
 app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
 app.include_router(alerts.router, prefix="/api/alerts", tags=["Alerts"])
 app.include_router(ai.router, prefix="/api/ai", tags=["AI"])
+app.include_router(planning.router, prefix="/api/planning", tags=["Planning"])
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 
 
