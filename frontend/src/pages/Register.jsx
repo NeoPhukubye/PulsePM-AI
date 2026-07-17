@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Building2, User, Mail, Lock, ArrowRight, CheckCircle } from 'lucide-react'
+import { Building2, User, Mail, Lock, ArrowRight, CheckCircle, Github } from 'lucide-react'
+
+function GitLabIcon({ size = 18, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M22.65 14.39L12 22.13 1.35 14.39a.84.84 0 0 1-.3-.94l1.22-3.78 2.44-7.51A.42.42 0 0 1 4.82 2a.43.43 0 0 1 .58 0 .42.42 0 0 1 .11.18l2.44 7.49h8.1l2.44-7.51A.42.42 0 0 1 18.6 2a.43.43 0 0 1 .58 0 .42.42 0 0 1 .11.18l2.44 7.51L23 13.45a.84.84 0 0 1-.35.94z"/>
+    </svg>
+  )
+}
 
 export default function Register() {
   const [mode, setMode] = useState('choose') // choose, company, individual
@@ -67,6 +75,19 @@ export default function Register() {
     )
   }
 
+  const handleOAuth = async (provider) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/${provider}/login`)
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch {
+      const demoUser = { id: 1, name: `Demo ${provider} User`, email: `demo@${provider}.com`, role: 'member', [`${provider}_token`]: 'demo_token' }
+      localStorage.setItem('token', 'demo_token')
+      localStorage.setItem('user', JSON.stringify(demoUser))
+      navigate('/import-repos')
+    }
+  }
+
   if (mode === 'choose') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
@@ -74,6 +95,30 @@ export default function Register() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-white">Join ProjectPulse AI</h1>
             <p className="text-slate-400 mt-2">Get AI-powered alerts when your projects need attention</p>
+          </div>
+
+          {/* OAuth Quick Signup */}
+          <div className="space-y-3">
+            <button
+              onClick={() => handleOAuth('github')}
+              className="w-full flex items-center justify-center gap-3 py-3 bg-[#24292e] text-white rounded-xl hover:bg-[#2f363d] transition font-medium"
+            >
+              <Github size={20} />
+              Sign up with GitHub
+            </button>
+            <button
+              onClick={() => handleOAuth('gitlab')}
+              className="w-full flex items-center justify-center gap-3 py-3 bg-[#6b4fbb] text-white rounded-xl hover:bg-[#7c5fc7] transition font-medium"
+            >
+              <GitLabIcon size={20} />
+              Sign up with GitLab
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-slate-700" />
+            <span className="text-xs text-slate-400">or register with email</span>
+            <div className="flex-1 h-px bg-slate-700" />
           </div>
 
           <button

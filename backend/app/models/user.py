@@ -22,13 +22,22 @@ class User(Base):
     email = Column(String(300), unique=True, nullable=False, index=True)
     name = Column(String(300), nullable=False)
     password_hash = Column(String(500), nullable=False)
-    role = Column(String(100), default="member")  # admin, manager, member
+    role = Column(String(100), default="member")
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
     is_active = Column(Boolean, default=True)
+
+    # OAuth
+    oauth_provider = Column(String(50), nullable=True)  # github, gitlab
+    github_token = Column(String(500), nullable=True)
+    gitlab_token = Column(String(500), nullable=True)
+    avatar_url = Column(String(500), nullable=True)
+
+    # Notification preferences
     notify_project_behind = Column(Boolean, default=True)
     notify_risk_critical = Column(Boolean, default=True)
     notify_daily_standup = Column(Boolean, default=False)
     notify_weekly_report = Column(Boolean, default=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
 
     company = relationship("Company", back_populates="users")

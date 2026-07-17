@@ -9,6 +9,8 @@ import Analytics from './pages/Analytics'
 import Settings from './pages/Settings'
 import Register from './pages/Register'
 import Login from './pages/Login'
+import ImportRepos from './pages/ImportRepos'
+import OAuthCallback from './pages/OAuthCallback'
 
 export default function App() {
   return (
@@ -16,6 +18,8 @@ export default function App() {
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/import-repos" element={<ImportRepos />} />
+        <Route path="/auth/:provider/callback" element={<OAuthCallback />} />
         <Route path="/*" element={
           <div className="flex h-screen bg-slate-900">
             <Sidebar />
