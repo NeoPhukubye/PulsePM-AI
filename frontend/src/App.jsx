@@ -11,6 +11,11 @@ import Register from './pages/Register'
 import Login from './pages/Login'
 import ImportRepos from './pages/ImportRepos'
 import OAuthCallback from './pages/OAuthCallback'
+import Planning from './pages/Planning'
+import SprintPlanner from './pages/SprintPlanner'
+import Risks from './pages/Risks'
+import Standups from './pages/Standups'
+import AIAssistant from './pages/AIAssistant'
 
 export default function App() {
   return (
@@ -33,6 +38,11 @@ export default function App() {
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/analytics" element={<Analytics />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/planning" element={<Planning />} />
+                  <Route path="/sprint-planner" element={<SprintPlanner />} />
+                  <Route path="/risks" element={<Risks />} />
+                  <Route path="/standups" element={<Standups />} />
+                  <Route path="/ai-assistant" element={<AIAssistant />} />
                 </Routes>
               </main>
             </div>
