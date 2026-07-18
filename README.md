@@ -2,6 +2,12 @@
 
 **AI-Powered Multi-Agent Project Management Platform**
 
+---
+
+## Built for Dubai AI Week — The Rise of AI Agents Hackathon
+
+This project was built as part of the **Dubai AI Week: The Rise of AI Agents** hackathon. It demonstrates autonomous multi-agent collaboration applied to a real-world problem: project management at scale.
+
 > 6 autonomous AI agents work together in real-time to monitor your projects, predict risks, generate standups, and deliver executive insights — so you can manage by exception, not by micromanagement.
 
 ---
@@ -168,6 +174,26 @@ Open `http://localhost:3000`
 3. **Zero-Config Demo** — Works instantly with SQLite + seed data, no API keys needed
 4. **Proactive, Not Reactive** — Agents continuously scan and alert before problems escalate
 5. **Natural Language Actions** — Move beyond chat to actual project management commands
+
+---
+
+## Hackathon Context
+
+**Event:** Dubai AI Week — The Rise of AI Agents Hackathon  
+**Theme:** Autonomous AI agents solving real-world problems  
+**Our Focus:** Multi-agent orchestration for project management automation
+
+This submission demonstrates:
+- Autonomous agent-to-agent communication without human intervention
+- Real-time visibility into agent decision-making
+- Practical application of agentic AI to reduce manual PM overhead
+- A fully functional prototype that runs out of the box
+
+---
+
+## Team
+
+Built with passion during Dubai AI Week 2025.
 
 ---
 
