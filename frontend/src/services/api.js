@@ -30,6 +30,7 @@ export const reportsAPI = {
   getExecutive: () => api.get('/reports/executive'),
   getSprint: (sprintId) => api.get(`/reports/sprint/${sprintId}`),
   generate: (type) => api.post('/reports/generate', null, { params: { report_type: type } }),
+  generateAndEmail: (data) => api.post('/reports/generate-and-email', data),
 }
 
 export const alertsAPI = {
