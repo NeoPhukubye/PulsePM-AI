@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Header
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database.database import get_db
@@ -6,28 +7,55 @@ from app.models.user import User, Company
 from pydantic import BaseModel
 from typing import Optional
 from passlib.context import CryptContext
-from jose import jwt
-from datetime import datetime, timedelta
+from jose import jwt, JWTError
+from datetime import datetime, timedelta, timezone
 import httpx
 import os
+import secrets
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-SECRET_KEY = os.getenv("SECRET_KEY", "projectpulse-secret-key-change-in-production")
+security = HTTPBearer(auto_error=False)
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    import warnings
+    warnings.warn("SECRET_KEY not set! Using random key (tokens won't persist across restarts).", stacklevel=2)
+    SECRET_KEY = secrets.token_urlsafe(32)
+
 ALGORITHM = "HS256"
 
 # OAuth Config
-GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "demo_github_client_id")
-GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET", "demo_github_client_secret")
-GITLAB_CLIENT_ID = os.getenv("GITLAB_CLIENT_ID", "demo_gitlab_client_id")
-GITLAB_CLIENT_SECRET = os.getenv("GITLAB_CLIENT_SECRET", "demo_gitlab_client_secret")
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "")
+GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET", "")
+GITLAB_CLIENT_ID = os.getenv("GITLAB_CLIENT_ID", "")
+GITLAB_CLIENT_SECRET = os.getenv("GITLAB_CLIENT_SECRET", "")
 GITLAB_URL = os.getenv("GITLAB_URL", "https://gitlab.com")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 
 def create_token(user_id: int, email: str) -> str:
-    expire = datetime.utcnow() + timedelta(hours=24)
+    expire = datetime.now(timezone.utc) + timedelta(hours=24)
     return jwt.encode({"sub": str(user_id), "email": email, "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = int(payload.get("sub"))
+    except (JWTError, ValueError, TypeError):
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
 
 
 class CompanyRegister(BaseModel):
@@ -286,7 +314,10 @@ async def gitlab_callback(code: str, db: AsyncSession = Depends(get_db)):
 # --- Fetch Repos ---
 
 @router.get("/github/repos")
-async def get_github_repos(token: str = Query(...)):
+async def get_github_repos(current_user: User = Depends(get_current_user)):
+    token = current_user.github_token
+    if not token:
+        raise HTTPException(status_code=400, detail="No GitHub token linked. Connect GitHub first.")
     repos = []
     page = 1
     async with httpx.AsyncClient() as client:
@@ -320,7 +351,10 @@ async def get_github_repos(token: str = Query(...)):
 
 
 @router.get("/gitlab/repos")
-async def get_gitlab_repos(token: str = Query(...)):
+async def get_gitlab_repos(current_user: User = Depends(get_current_user)):
+    token = current_user.gitlab_token
+    if not token:
+        raise HTTPException(status_code=400, detail="No GitLab token linked. Connect GitLab first.")
     repos = []
     page = 1
     async with httpx.AsyncClient() as client:
