@@ -156,7 +156,7 @@ async def get_ai_suggestions(project_id: int, current_user: User = Depends(get_c
 
 
 @router.get("/predict/{project_id}")
-async def predict_delivery(project_id: int, db: AsyncSession = Depends(get_db)):
+async def predict_delivery(project_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     llm = LLMService()
     prediction = await llm.predict_delivery(project_id, db)
     return prediction
