@@ -506,10 +506,10 @@ async def update_notifications(user_id: int, prefs: NotificationPreferences, db:
 
 
 @router.post("/subscribe")
-async def subscribe_to_project(data: SubscribeProject, user_id: int = 1, db: AsyncSession = Depends(get_db)):
+async def subscribe_to_project(data: SubscribeProject, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     from app.models.user import ProjectSubscription
     sub = ProjectSubscription(
-        user_id=user_id, project_id=data.project_id,
+        user_id=current_user.id, project_id=data.project_id,
         notify_behind=data.notify_behind, notify_blocked=data.notify_blocked, notify_budget=data.notify_budget,
     )
     db.add(sub)
