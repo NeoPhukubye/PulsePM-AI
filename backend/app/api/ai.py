@@ -53,7 +53,7 @@ def parse_action(message: str) -> dict:
 
 
 @router.post("/chat")
-async def ai_chat(chat: ChatMessage, db: AsyncSession = Depends(get_db)):
+async def ai_chat(chat: ChatMessage, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     start_time = time.time()
     parsed = parse_action(chat.message)
     orchestration_log = []
