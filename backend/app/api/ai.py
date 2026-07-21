@@ -138,7 +138,7 @@ async def ai_chat(chat: ChatMessage, current_user: User = Depends(get_current_us
 
 
 @router.get("/suggestions/{project_id}")
-async def get_ai_suggestions(project_id: int, db: AsyncSession = Depends(get_db)):
+async def get_ai_suggestions(project_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     planning = PlanningAgent()
     risk = RiskAgent()
 
