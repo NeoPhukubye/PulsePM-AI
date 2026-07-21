@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.database import get_db
 from app.models.user import User
@@ -11,9 +11,12 @@ from app.agents.executive_agent import ExecutiveAgent
 from app.services.llm_service import LLMService
 from pydantic import BaseModel
 from typing import Optional
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 import time
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 class ChatMessage(BaseModel):
@@ -53,7 +56,8 @@ def parse_action(message: str) -> dict:
 
 
 @router.post("/chat")
-async def ai_chat(chat: ChatMessage, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@limiter.limit("20/minute")
+async def ai_chat(request: Request, chat: ChatMessage, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     start_time = time.time()
     parsed = parse_action(chat.message)
     orchestration_log = []
