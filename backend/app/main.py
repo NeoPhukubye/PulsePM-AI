@@ -91,9 +91,6 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-
-
-
 async def live_alert_broadcaster():
     """Periodically broadcasts live alerts to all connected WebSocket clients."""
     from app.database.database import async_session
