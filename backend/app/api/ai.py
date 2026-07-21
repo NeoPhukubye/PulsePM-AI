@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.database import get_db
+from app.models.user import User
+from app.api.auth import get_current_user
 from app.agents.project_manager import ProjectManagerAgent
 from app.agents.risk_agent import RiskAgent
 from app.agents.planning_agent import PlanningAgent
@@ -9,7 +11,6 @@ from app.agents.executive_agent import ExecutiveAgent
 from app.services.llm_service import LLMService
 from pydantic import BaseModel
 from typing import Optional
-import asyncio
 import time
 
 router = APIRouter()
