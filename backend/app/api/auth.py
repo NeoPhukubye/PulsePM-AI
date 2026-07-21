@@ -142,7 +142,8 @@ async def register_user(data: UserRegister, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login")
-async def login(data: UserLogin, db: AsyncSession = Depends(get_db)):
+@limiter.limit("10/minute")
+async def login(request: Request, data: UserLogin, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == data.email))
     user = result.scalar_one_or_none()
 
