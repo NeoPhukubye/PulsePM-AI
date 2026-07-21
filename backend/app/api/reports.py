@@ -4,6 +4,7 @@ from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database.database import get_db
+from app.api.auth import get_current_user
 from app.agents.executive_agent import ExecutiveAgent
 from app.agents.reporting_agent import ReportingAgent
 from app.models.report import Report
@@ -22,20 +23,20 @@ class EmailReportRequest(BaseModel):
 
 
 @router.get("/executive")
-async def get_executive_report(db: AsyncSession = Depends(get_db)):
+async def get_executive_report(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     agent = ExecutiveAgent()
     report = await agent.generate_report(db)
     return report
 
 
 @router.get("/sprint/{sprint_id}")
-async def get_sprint_report(sprint_id: int, db: AsyncSession = Depends(get_db)):
+async def get_sprint_report(sprint_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     agent = ReportingAgent()
     return await agent.generate_sprint_report(db, sprint_id)
 
 
 @router.get("/history")
-async def get_report_history(db: AsyncSession = Depends(get_db)):
+async def get_report_history(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(Report).order_by(Report.created_at.desc()).limit(20)
     )
@@ -43,7 +44,7 @@ async def get_report_history(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/generate")
-async def generate_report(report_type: str = "executive", db: AsyncSession = Depends(get_db)):
+async def generate_report(report_type: str = "executive", current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if report_type == "executive":
         agent = ExecutiveAgent()
         content = await agent.generate_report(db)
@@ -58,7 +59,7 @@ async def generate_report(report_type: str = "executive", db: AsyncSession = Dep
 
 
 @router.post("/generate-and-email")
-async def generate_and_email_report(request: EmailReportRequest, db: AsyncSession = Depends(get_db)):
+async def generate_and_email_report(request: EmailReportRequest, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if request.report_type == "executive":
         agent = ExecutiveAgent()
         content = await agent.generate_report(db)
