@@ -77,13 +77,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    await seed_database()
-    start_scheduler()
-    asyncio.create_task(live_alert_broadcaster())
+
 
 
 async def live_alert_broadcaster():
