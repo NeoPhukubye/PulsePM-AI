@@ -1,7 +1,10 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import asyncio
 import json
+import logging
+import os
 
 from app.api import projects, teams, standups, reports, alerts, ai, planning
 from app.api import auth
@@ -9,18 +12,36 @@ from app.database.database import engine, Base
 from app.database.seed import seed_database
 from app.services.scheduler import start_scheduler
 
+logger = logging.getLogger(__name__)
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", FRONTEND_URL).split(",")]
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    await seed_database()
+    start_scheduler()
+    task = asyncio.create_task(live_alert_broadcaster())
+    yield
+    task.cancel()
+
+
 app = FastAPI(
     title="ProjectPulse AI",
     description="AI-powered multi-agent project management platform",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 app.include_router(projects.router, prefix="/api/projects", tags=["Projects"])
