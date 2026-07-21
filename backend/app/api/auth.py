@@ -389,14 +389,20 @@ async def get_gitlab_repos(current_user: User = Depends(get_current_user)):
 
 # --- Import Repos as Projects ---
 
+class RepoItem(BaseModel):
+    name: str
+    full_name: str
+    id: int
+    description: Optional[str] = ""
+
+
 class ImportReposRequest(BaseModel):
-    repos: list[dict]
-    provider: str  # github or gitlab
-    token: str
+    repos: list[RepoItem]
+    provider: str
 
 
 @router.post("/import/repos")
-async def import_repos(data: ImportReposRequest, db: AsyncSession = Depends(get_db)):
+async def import_repos(data: ImportReposRequest, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     from app.models.project import Project
     from app.models.task import Task
 
