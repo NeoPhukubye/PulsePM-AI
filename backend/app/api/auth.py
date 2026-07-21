@@ -406,11 +406,15 @@ async def import_repos(data: ImportReposRequest, current_user: User = Depends(ge
     from app.models.project import Project
     from app.models.task import Task
 
+    token = current_user.github_token if data.provider == "github" else current_user.gitlab_token
+    if not token:
+        raise HTTPException(status_code=400, detail=f"No {data.provider} token linked.")
+
     imported = []
     for repo in data.repos:
         project = Project(
-            name=repo["name"],
-            description=repo.get("description", "") or f"Imported from {data.provider}: {repo.get('full_name', '')}",
+            name=repo.name,
+            description=repo.description or f"Imported from {data.provider}: {repo.full_name}",
             status="active",
             health_score=85.0,
             completion=0.0,
@@ -418,8 +422,7 @@ async def import_repos(data: ImportReposRequest, current_user: User = Depends(ge
         db.add(project)
         await db.flush()
 
-        # Import open issues as tasks
-        issues = await _fetch_issues(repo, data.provider, data.token)
+        issues = await _fetch_issues(repo.model_dump(), data.provider, token)
         for issue in issues[:50]:
             task = Task(
                 project_id=project.id,
@@ -432,7 +435,7 @@ async def import_repos(data: ImportReposRequest, current_user: User = Depends(ge
             )
             db.add(task)
 
-        imported.append({"project_id": project.id, "name": repo["name"], "issues_imported": len(issues[:50])})
+        imported.append({"project_id": project.id, "name": repo.name, "issues_imported": len(issues[:50])})
 
     await db.commit()
     return {"imported": imported, "total_projects": len(imported)}
