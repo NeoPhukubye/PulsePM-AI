@@ -93,13 +93,14 @@ async def live_alert_broadcaster():
                     agent = RiskAgent()
                     alerts = await agent.scan_for_risks(db)
                     if alerts:
+                        from datetime import datetime, timezone
                         await manager.broadcast({
                             "type": "alert",
                             "data": alerts[:3],
-                            "timestamp": __import__('datetime').datetime.now().isoformat(),
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
                         })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.exception("Error in live alert broadcaster: %s", e)
 
 
 @app.websocket("/ws")
